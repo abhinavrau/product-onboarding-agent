@@ -1,9 +1,9 @@
 # Product Onboarding Agent
 
-Demo Sales agent for a Point of Sales (POS) company using the Google Agent Development Kit (ADK).
+Demo Sales agent for a Point of Sales (POS) company using the [Google Agent Development Kit (ADK)](https://google.github.io/adk-docs/).
 
 ## Goals
-- Showcase the art of the possible of an AI agent helping a small business owner select a POS system using multimodal capability.
+- Showcase the art of the possible of an AI agent helping a small business owner select a Point of Sale system using multimodal capability.
   
 ![](vision.png)
 ## Prerequisites
@@ -40,15 +40,15 @@ Demo Sales agent for a Point of Sales (POS) company using the Google Agent Devel
     ```bash
     PYTHON_KEYRING_BACKEND=keyring.backends.null.Keyring poetry update
     ```
-4. **Create a AI Search Application in GCP for KnowledgeBase search**
+3. **Create a AI Search Application in GCP for KnowledgeBase search**
   
   * In the GCP Console search for `AI Applications` --> `Create App`
   * Select `Custom Search` and provide the company name and name for the Application
   * Create a Datastore and select the Cloud Storage (GCS) --> Unstructured Documents. 
   * Select the bucket where your Knowledbase documents are stored. These could be user guides and technical docs. Leave all other settings to the default
-  * Create the Application. Copy the Application name from the Application list.
+  * Create the Application. Copy the Application ID from the Application list.
       
-5.  **Configure Environment Variables:**
+4.  **Configure Environment Variables:**
     *   Copy the example environment file to create your own local configuration:
         ```bash
         cp .env.example .env
