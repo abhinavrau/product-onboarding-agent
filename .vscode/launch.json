@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python Debugger: Payment Onboarding Agent",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "./.venv/bin/adk",
+            "console": "integratedTerminal",
+            "args": "web",
+            "cwd": "${workspaceFolder}"
+        },
+    ]
+}

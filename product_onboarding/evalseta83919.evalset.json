@@ -1,0 +1,142 @@
+[
+  {
+    "name": "case95a4aa",
+    "data": [
+      {
+        "query": "Hi",
+        "expected_tool_use": [],
+        "expected_intermediate_agent_responses": [],
+        "reference": "I am a ACME Corp Point of Sale agent that can help you learn more about our POS solutions and choose the one right for you. I can guide you to purchasing one that is right for your business.\n\nTo get started, could you please provide the name and location of your business?\n"
+      },
+      {
+        "query": "Not Just Coffee in Charlotte NC",
+        "expected_tool_use": [
+          {
+            "tool_name": "transfer_to_agent",
+            "tool_input": {
+              "agent_name": "qualify_customer_agent"
+            }
+          },
+          {
+            "tool_name": "find_business_from_google_maps",
+            "tool_input": {
+              "query": "Not Just Coffee in Charlotte NC",
+              "max_results": 4
+            }
+          }
+        ],
+        "expected_intermediate_agent_responses": [],
+        "reference": "Okay, I found a few places. Let's see if any of these is your business.\n\nIs this your business?\n\n*   **Business Name**: Not Just Coffee\n*   **Address**: 2230 Park Rd #102, Charlotte, NC 28203, USA\n*   **Highlights**: Contemporary spot serving high-end coffee drinks, plus tea & light fare like toasts & yogurt.\n*   **Image**: [View Image](https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=AXQCQNTG04QcYsV6q8JfNAMSU8rMfZMqHWGgUFdlTiH2I6gX6ewCSsy_6On3536ppRZ9gst9Srmp313GqeM5E_VROfNb6kBbEWLEGC9FI9N494QGt6t8JoKQJPv7ZWM6uf_KXyhU8ZunsBF2JC5ZvggmsIa16uZprHjw-takvQB315pn5PAQRFovZGD2lYJJryG2Vncc-IVGoFxyATlf7ijpWQNTuepRA2EwdB61y2RrUJmieKRqwnzpZPFVAkk11ZPpngarD6Uln8B9A7lokGsqCqvs5h9tqfA1W35rpwyFl67LxkUB6Kq8gJ56knOXywxCLq8-ThF6DC4jjogcgzR6qL0-xa7l3Yuy4xxZQaUJgI0KuBPpVcc1T9OHI39t-Ryjfheb2MJe6kEgcZ6wsWA7IdOA4Uzf33IgheWsMYtjHvZKq7PZoMgtHhP0FKKmoqgC9QvbQwIMOpnSvPJ1rEeMxC1at6uj_dDEyHOyYWT69lRW6mTRvnKTcYaZ-gSMC6CxwFy3NS60LcoDVPm7Cbq-hCd2SYHqbqTDu5hbZdRHgV6uVeFFJhSglhN66cvDFG2yiHz7hIN3Y2WBwugZjMlwkm6zHjsnZ3yzNN1eQHwLX6uHBGS6zah-lTp0WkdgppmqeH6pW98H&key=AIzaSyDUeMiCdcrp1GMUksbatZNKalKCVEffdcs)\n*   **Map**: [View on Google Maps](https://www.google.com/maps/place/?q=place_id:ChIJmQuamJ-fVogRRVVKVkx3xjM)\n*   **Place ID**: ChIJmQuamJ-fVogRRVVKVkx3xjM\n*   **Review Rating**: 4.4\n\nYes or No?"
+      },
+      {
+        "query": "Yes",
+        "expected_tool_use": [
+          {
+            "tool_name": "transfer_to_agent",
+            "tool_input": {
+              "agent_name": "product_recommender_agent"
+            }
+          }
+        ],
+        "expected_intermediate_agent_responses": [],
+        "reference": "Great! Now that I have your business information, the next step is to look at your current POS setup. Could you please upload a picture of your current Point of Sale system? This will help me recommend the best ACME Corp solution for Not Just Coffee."
+      },
+      {
+        "query": "Here you go",
+        "expected_tool_use": [
+          {
+            "tool_name": "identify_pos_model",
+            "tool_input": {
+              "prompt": "A Square Stand POS system is on a counter in a coffee shop with a barista in the background."
+            }
+          }
+        ],
+        "expected_intermediate_agent_responses": [],
+        "reference": "Thanks for providing the image. It looks like you're currently using the Square Register.\n\nConsidering Not Just Coffee is a coffee shop, which falls under the quick-service restaurant category, and you are currently using a stationary system, I would recommend the following two ACME Corp POS terminals:\n\n1.  **ACME Corp Station Solo:** This is a stationary system ideal for retail and quick-service restaurants. It features a large merchant screen, receipt printer, and an optional cash drawer. It has strong processing capabilities and supports various payment types, inventory management, order management, customer engagement, employee management, reporting, and online ordering integration.\n\n2.  **ACME Corp Mini:** This is also a stationary, compact countertop system suitable for retail, quick-service restaurants, and services. It has a compact design with a touchscreen and built-in printer. It accepts various payment types and offers inventory management, order management, customer engagement, employee management, reporting, and online ordering integration, and appointment management which could be useful for your coffee shop.\n\nBoth of these options would be a great fit for your business based on your current setup and business type.\n\nWould you like to finalize either the ACME Corp Station Solo or the ACME Corp Mini for your business?"
+      },
+      {
+        "query": "What are the steps to install the Solo",
+        "expected_tool_use": [
+          {
+            "tool_name": "knowledgebase_search_agent",
+            "tool_input": {
+              "query": "installation steps for ACME Corp Station Solo"
+            }
+          }
+        ],
+        "expected_intermediate_agent_responses": [],
+        "reference": "Here are the installation steps for the ACME Corp Station Solo:\n\n- The Station Solo includes the main unit.\n- Flex and printer are sold separately.\n- The charging cable accessory is sold separately.\n- Step 1 & 2: Connect two cables to the back of the device.\n- Step 3: Connect a cable to a device.\n- Step 4: Connect a cable to a power adapter.\n- Plug in last, to a grounded AC power outlet.\n\nHere are some resources with more information:\n*   [https://storage.cloud.google.com/argolis-arau-clover-kb/Clover-StationSoloInternational-QuickStartGuide-v4-web.pdf](https://storage.cloud.google.com/argolis-arau-clover-kb/Clover-StationSoloInternational-QuickStartGuide-v4-web.pdf)\n*   [https://storage.cloud.google.com/argolis-arau-clover-kb/Clover-StationSolo-QuickStartGuide-v4-web.pdf](https://storage.cloud.google.com/argolis-arau-clover-kb/Clover-StationSolo-QuickStartGuide-v4-web.pdf)\n*   [https://storage.cloud.google.com/argolis-arau-clover-kb/Clover-StationDuo-QuickStartGuide-v8-web.pdf](https://storage.cloud.google.com/argolis-arau-clover-kb/Clover-StationDuo-QuickStartGuide-v8-web.pdf)\n\nWould you like to finalize either the ACME Corp Station Solo or the ACME Corp Mini for your business?"
+      },
+      {
+        "query": "I like the Solo",
+        "expected_tool_use": [],
+        "expected_intermediate_agent_responses": [],
+        "reference": "Great, the ACME Corp Station Solo is an excellent choice for a business like yours!\n\nWould you like to see how the ACME Corp Station Solo would look in your store based on the image you provided earlier?"
+      },
+      {
+        "query": "Yes",
+        "expected_tool_use": [
+          {
+            "tool_name": "image_editor",
+            "tool_input": {
+              "prompt": "Change ONLY the Point of Sale system in the image with the ACME Corp Station Solo"
+            }
+          }
+        ],
+        "expected_intermediate_agent_responses": [],
+        "reference": "Here is how the ACME Corp Station Solo would look in your store:\n\nWould you like to finalize the order for the ACME Corp Station Solo?"
+      },
+      {
+        "query": "Yes",
+        "expected_tool_use": [
+          {
+            "tool_name": "update_opportunity_stage",
+            "tool_input": {
+              "business_name": "Not Just Coffee",
+              "new_stage": "Solution Eval Complete"
+            }
+          }
+        ],
+        "expected_intermediate_agent_responses": [],
+        "reference": ""
+      },
+      {
+        "query": "Whats next",
+        "expected_tool_use": [
+          {
+            "tool_name": "transfer_to_agent",
+            "tool_input": {
+              "agent_name": "kyc_check"
+            }
+          }
+        ],
+        "expected_intermediate_agent_responses": [],
+        "reference": "Let's verify your identity so we can get a price and contract started. Please submit any 2 of the 4 allowed identity documents:\n\n*   Drivers License\n*   Bank Statement\n*   W9 form\n*   Passport\n"
+      },
+      {
+        "query": "Here ",
+        "expected_tool_use": [
+          {
+            "tool_name": "update_opportunity_with_comment",
+            "tool_input": {
+              "comment_text": "KYC Complete",
+              "business_name": "Not Just Coffee"
+            }
+          }
+        ],
+        "expected_intermediate_agent_responses": [
+          {
+            "author": "kyc_check",
+            "text": "- Type of first document: Bank Statement\n- Type of second document: Drivers License\n- Names are matching in both documents: Yes\n\nCongratulations on successfully verifying your identity!\n\n"
+          }
+        ],
+        "reference": "You can now view the contract and purchase the POS system at: https://acme-corp.com/buynow/not-just-coffee-hyphenated\n\nFor any questions, please contact ACME Corp Sales at (555) 123-4567. Our contact details are also available on our website.\n"
+      }
+    ],
+    "initial_session": {
+      "state": {},
+      "app_name": "product_onboarding",
+      "user_id": "user"
+    }
+  }
+]

@@ -1,0 +1,46 @@
+[project]
+name = "product-onboarding"
+version = "0.1.0"
+description = "Customer On boarding agent for a Payment Processing company"
+authors = [
+    {name = "Abhinav Rau", email = "arau@google.com"},
+
+]
+license = "Apache License 2.0"
+readme = "README.md"
+requires-python = ">=3.11"
+
+[tool.poetry.dependencies]
+google-cloud-aiplatform = { extras = [
+    "agent_engines",
+    "adk",
+], git = "https://github.com/googleapis/python-aiplatform.git", rev = "copybara_738852226" }
+python = "^3.11"
+pydantic = "^2.10.6"
+python-dotenv = "^1.0.1"
+google-genai = "^1.9.0"
+#google-adk = ">=0.5.0"
+google-adk = "=0.3.0"
+google-cloud-discoveryengine = ">=0.13.8"
+google-api-core = ">=2.24.2" # Explicitly added to help resolve import issues
+Pillow = "^10.3.0" # Added for image processing
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+#google-adk = { version = ">=0.5.0", extras = ["eval"] }
+google-adk = { version = "=0.3.0", extras = ["eval"] }
+
+[tool.poetry.group.deployment]
+optional = true
+
+[tool.poetry.group.deployment.dependencies]
+absl-py = "^2.2.1"
+cloudpickle = "^3.1.1"
+flake8-pyproject = "^1.2.3"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
