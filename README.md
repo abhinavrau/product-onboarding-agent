@@ -21,7 +21,7 @@ Demo Sales agent for a Point of Sales (POS) company using the [Google Agent Deve
 1.  **Clone the repository:**
     If you haven't already, clone the repository to your local machine:
     ```bash
-    git clone <repository_url> # Replace <repository_url> with the actual URL of this repository
+    git clone https://github.com/abhinavrau/product-onboarding-agent.git 
     cd product-onboarding
     ```
 
