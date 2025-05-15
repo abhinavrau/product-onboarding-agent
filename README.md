@@ -6,13 +6,16 @@ Demo Sales agent for a Point of Sales (POS) company using the [Google Agent Deve
 - Showcase the art of the possible of an AI agent helping a small business owner select a Point of Sale system using multimodal capability.
   
 ![](vision.png)
+
+## Agent Design
+![](agent-design.png)
 ## Prerequisites
 
 *   Authenticated Google Cloud Account using the following services enabled
-    *   Maps API 
-    *   Cloud Storage
-    *   Vertex AI
-    *   Discovery Engine (for Knowledgebase Search)
+    *   Maps API - to verify business
+    *   Vertex AI or Google AI Studio API Key - Gemini models
+    *   Discovery Engine (a.k.a. Vertex AI Search) - Knowledgebase Search Engine
+    *   Cloud Storage - to store Knowledgebase documents
 *   Python 3.11 or higher
 *   [Poetry](https://python-poetry.org/docs/#installation) installed
 
@@ -76,12 +79,11 @@ poetry run adk web
 This will start the ADK development UI, typically accessible at `http://localhost:8000`.
 
 ## Demo Script
-
-
 **User:** `Hi`
 
 **Expected Agent Response:**
-``` I am a ACME Corp Point of Sale agent that can help you learn more about our POS solutions and choose the one right for you. I can guide you to purchasing one that is right for your business.
+``` 
+I am a ACME Corp Point of Sale agent that can help you learn more about our POS solutions and choose the one right for you. I can guide you to purchasing one that is right for your business. 
 
 To get started, could you please provide the name and location of your business?
 ```
