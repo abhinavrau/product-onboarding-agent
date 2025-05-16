@@ -1,0 +1,4 @@
+{
+    "type": "BANK_STATEMENT_PROCESSOR",
+    "displayName": "pmtob-demo-bank-stmnt-parser"
+}

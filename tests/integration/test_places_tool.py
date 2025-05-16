@@ -12,8 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Basic tests for individual tools."""
+"""Basic tests for the Places tool."""
 
+import json
+import logging
+import os
 import unittest
 
 import pytest
@@ -36,33 +39,48 @@ session_service = InMemorySessionService()
 artifact_service = InMemoryArtifactService()
 
 
-class TestAgents(unittest.TestCase):
-    """Test cases for the Travel Concierge cohort of agents."""
+class TestPlacesTool(unittest.TestCase):
+    """Test cases for the Places API tool."""
 
     def setUp(self):
         """Set up for test methods."""
         super().setUp()
+       
         self.session = session_service.create_session(
-            app_name="Travel_Concierge",
-            user_id="traveler0115",
+            app_name="Product_Onboarding_Places_Test", # Updated app_name
+            user_id="places_tester01",
         )
-        self.user_id = "traveler0115"
+        self.user_id = "places_tester01"
         self.session_id = self.session.id
 
         self.invoc_context = InvocationContext(
             session_service=session_service,
-            invocation_id="ABCD",
+            invocation_id="PlacesTest",
             agent=root_agent,
             session=self.session,
         )
         self.tool_context = ToolContext(invocation_context=self.invoc_context)
 
     def test_places(self):
+        """Tests the find_business_from_google_maps function."""
         result = find_business_from_google_maps("Not Just Coffee in Charlotte NC")
-        print(result)
-        self.assertNotIn("error", result, f"API call failed with error: {result.get('error')}")
-        self.assertIn("places", result, "The result dictionary should contain a 'places' key.")
-        
+        logging.info(f"Places Result: {result}")
+        self.assertNotIn(
+            "error", result, f"API call failed with error: {result.get('error')}"
+        )
+        self.assertIn(
+            "places", result, "The result dictionary should contain a 'places' key."
+        )
+
         places_list = result.get("places", [])
-        self.assertTrue(any(place.get("place_id") == "ChIJ1Zy0mXCfVogRPyLjCWScplA" for place in places_list),
-                        "The expected place_id ChIJ1Zy0mXCfVogRPyLjCWScplA was not found in the results.")
+        self.assertTrue(
+            any(
+                (
+                    json.loads(place).get("place_id") == "ChIJ1Zy0mXCfVogRPyLjCWScplA"
+                    if isinstance(place, str)
+                    else place.get("place_id") == "ChIJ1Zy0mXCfVogRPyLjCWScplA"
+                )
+                for place in places_list
+            ),
+            "The expected place_id ChIJ1Zy0mXCfVogRPyLjCWScplA was not found in the results.",
+        )

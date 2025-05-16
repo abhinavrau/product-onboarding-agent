@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from typing import Any, Dict, List, Union
 
@@ -64,7 +65,6 @@ def get_place_details(
         }
 
 
-# --- Modified Function: Find Businesses From Text ---
 def find_business_from_google_maps(
     query: str, max_results: int = 4
 ) -> Union[Dict[str, List[Dict[str, Any]]], Dict[str, str]]:
@@ -105,16 +105,29 @@ def find_business_from_google_maps(
         ]:  # Use p_id to avoid conflict with details['place_id']
             details = get_place_details(p_id, api_key)
             if "error" not in details:
-                lat = details.get("geometry", {}).get("location", {}).get("lat")
-                lng = details.get("geometry", {}).get("location", {}).get("lng")
+                # Safely access geometry and location data
+                geometry_data = details.get("geometry")
+                location_data = {} # Default to empty dict
+                if isinstance(geometry_data, dict):
+                    location_data = geometry_data.get("location", {})
 
+                lat_val = None
+                lng_val = None
+                if isinstance(location_data, dict): # Ensure location_data is a dict before .get
+                    lat_val = location_data.get("lat")
+                    lng_val = location_data.get("lng")
+
+                # Safely access editorial summary
                 highlights = ""
-                if details.get("editorial_summary") and isinstance(
-                    details["editorial_summary"], dict
-                ):
-                    highlights = details["editorial_summary"].get("overview", "")
-
-                image_url = get_photo_url(details.get("photos", []), api_key)
+                editorial_summary_data = details.get("editorial_summary")
+                if isinstance(editorial_summary_data, dict): # Ensure editorial_summary_data is a dict
+                    highlights = editorial_summary_data.get("overview", "")
+                
+                # Safely access photos
+                photos_list_data = details.get("photos")
+                if not isinstance(photos_list_data, list): # Ensure photos_list_data is a list
+                    photos_list_data = []  # Default to empty list if not a list or missing
+                image_url = get_photo_url(photos_list_data, api_key)
 
                 actual_place_id = details.get(
                     "place_id", ""
@@ -128,8 +141,8 @@ def find_business_from_google_maps(
                 formatted_place = {
                     "place_name": details.get("name", ""),
                     "address": details.get("formatted_address", ""),
-                    "lat": str(lat) if lat is not None else "",
-                    "long": str(lng) if lng is not None else "",
+                    "lat": str(lat_val) if lat_val is not None else "",
+                    "long": str(lng_val) if lng_val is not None else "",
                     "review_ratings": details.get("rating", 0.0),
                     "highlights": highlights,
                     "image_url": image_url,
@@ -138,8 +151,8 @@ def find_business_from_google_maps(
                 }
                 formatted_places_list.append(formatted_place)
             else:
-                print(
-                    f"Warning: Could not get details for place_id {p_id}: {details.get('error')}"
+                logging.warning(
+                    f"Could not get details for place_id {p_id}: {details.get('error')}"
                 )
 
         return {"places": formatted_places_list}

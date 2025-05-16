@@ -19,12 +19,16 @@ import pathlib
 import dotenv
 import pytest
 from google.adk.evaluation import AgentEvaluator
-
+from google.adk.artifacts import InMemoryArtifactService
+from google.adk.sessions import InMemorySessionService
 
 @pytest.fixture(scope="session", autouse=True)
 def load_env():
     dotenv.load_dotenv()
 
+
+session_service = InMemorySessionService()
+artifact_service = InMemoryArtifactService()
 
 def test_acme():
     """Test the agent's basic flow with acme corp as company name"""

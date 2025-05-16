@@ -1,6 +1,6 @@
 # Product Onboarding Agent
 
-Demo Sales agent for a Point of Sales (POS) company using the [Google Agent Development Kit (ADK)](https://google.github.io/adk-docs/).
+Demo Sales agent for a Point of Sales (POS) company using the [Google Agent Development Kit (ADK)](https://google.github.io/adk-docs/). Heavily inspired by the the [ADK-Samples](https://github.com/google/adk-samples).
 
 ## Goals
 - Showcase the art of the possible of an AI agent helping a small business owner select a Point of Sale system using multimodal capability.
@@ -11,11 +11,13 @@ Demo Sales agent for a Point of Sales (POS) company using the [Google Agent Deve
 ![](agent-design.png)
 ## Prerequisites
 
-*   Authenticated Google Cloud Account using the following services enabled
-    *   Maps API - to verify business
-    *   Vertex AI or Google AI Studio API Key - Gemini models
-    *   Discovery Engine (a.k.a. Vertex AI Search) - Knowledgebase Search Engine
-    *   Cloud Storage - to store Knowledgebase documents
+*   Authenticated Google Cloud Account with the following services enabled
+    *   [Gemini API](https://console.cloud.google.com/apis/library/generativelanguage.googleapis.com) or [Google AI Studio](https://aistudio.google.com/) API Key - to access Gemini models
+    *   [Places API](https://console.cloud.google.com/apis/library/places-backend.googleapis.com) - Used to verify business
+    *   [Discovery Engine](https://console.cloud.google.com/apis/library/discoveryengine.googleapis.com) (a.k.a. Vertex AI Search) - Knowledgebase Search Engine
+    *   [Cloud Storage](https://console.cloud.google.com/apis/library/storage.googleapis.com) - to store Knowledgebase documents
+    *   [Document AI](https://console.cloud.google.com/apis/library/documentai.googleapis.com) - To detect verify Identity documents and extract info from Identity documents.
+
 *   Python 3.11 or higher
 *   [Poetry](https://python-poetry.org/docs/#installation) installed
 
@@ -28,12 +30,14 @@ Demo Sales agent for a Point of Sales (POS) company using the [Google Agent Deve
     cd product-onboarding
     ```
 
-2.  **Install dependencies using Poetry:**
+2.  **Create Virtual Environment and install dependencies using Poetry:**
     Navigate to the project's root directory (`product-onboarding`) in your terminal and run:
     ```bash
+    python3 -m venv .venv
+    source .venv/bin/activate
     poetry install
     ```
-    This command will create a virtual environment if one doesn't exist and install all the dependencies specified in `pyproject.toml`.
+    This command will create a virtual environment and install all the dependencies specified in `pyproject.toml`.
 
     **Note on Keyring Errors:** If you encounter a `RuntimeError` related to `keyring` during `poetry install` or `poetry update`, you might need to set the `PYTHON_KEYRING_BACKEND` environment variable. Try running the command as follows:
     ```bash
@@ -69,6 +73,18 @@ Demo Sales agent for a Point of Sales (POS) company using the [Google Agent Deve
         *   `AGENT_DOMAIN_NAME`: The domain name for constructing URLs (e.g., `acme-corp.com`).
         *   `GOOGLE_CLOUD_STORAGE_BUCKET` (Optional): A Google Cloud Storage bucket name, typically used for agent engine deployment tests.
 
+5. **Create DocAI Processors:**
+    * Run the script to create all the processors
+  ```bash
+    docai/create_docai_processor.sh
+  ```
+## Run Integration Test
+Run integration test to confirm tools are connecting properly
+```bash
+poetry install --with dev
+poetry run pytest
+
+```
 
 ## Running the Application
 
@@ -203,12 +219,7 @@ Would you like to finalize the order for the ACME Corp Station Solo?
 
 **Expected Agent Response:**
 ```
-Let's verify your identity so we can get a price and contract started. Please submit any 2 of the 4 allowed identity documents:
-
-*   Drivers License
-*   Bank Statement
-*   W9 form
-*   Passport
+Let's verify your identity so we can get a price and contract started. Please submit upload your drivers licence:
 ```
 **Expected Tool Use:**
 *   update_opportunity_stage
@@ -216,17 +227,39 @@ Let's verify your identity so we can get a price and contract started. Please su
 
 ---
 
-**User:** Click the Attach icon to upload the [Drivers License](./tests/data/brenda-sample.jpeg) and [Bank Statement](./tests/data/brenda-sample.pdf) `Here`
+**User:** Click the Attach icon to upload the [Drivers License](./tests/data/DL-brenda-sample.jpeg `Here`
 
 **Expected Agent Response:**
 ```
+ Great. Now please submit upload a copy of your Bank Statement:
+```
+
+**Expected Tool Use:**
+*   check_fraud_drivers_license
+*   extract_info_from_drivers_license
+
+**User:** Click the Attach icon to upload the [Drivers License](./tests/data/DL-brenda-sample.jpeg `Here`
+
+---
+
+**User:** Click the Attach icon to upload the [Bank Statement](./tests/data/Bank-Statement-brenda-sample.pdf `Here`
+
+**Expected Agent Response:**
+```
+
+ - Type of first document: Drivers License
+ - Type of second document: Bank Statement
+ - Names are matching in both documents: Yes
+ 
+Congratulations on successfully verifying your identity!
+
 You can now view the contract and purchase the POS system at: https://acme-corp.com/buynow/not-just-coffee-hyphenated
 
 For any questions, please contact ACME Corp Sales at (555) 123-4567. Our contact details are also available on our website.
 ```
-**Expected Tool Use:**
-*   update_opportunity_with_comment
 
+**Expected Tool Use:**
+*   extract_info_from_bank_statement
 ---
 
 

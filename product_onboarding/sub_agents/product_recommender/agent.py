@@ -14,6 +14,7 @@
 
 """Validate Business agent. Finds and verifies a business using name and location"""
 import base64
+import logging
 import os
 from io import BytesIO
 from typing import Optional
@@ -52,20 +53,20 @@ def _load_image_from_user_content(
                     image = PIL.Image.open(BytesIO(image_bytes))
                     return image, image_part
                 except Exception as e:
-                    print(f"Error opening image from inline_data: {e}")
+                    logging.error(f"Error opening image from inline_data: {e}")
                     return None, None
             else:
-                print(
+                logging.warning(
                     "Image part at index 1 is missing, does not contain inline data, or data is empty."
                 )
                 return None, None
         else:
-            print(
+            logging.warning(
                 "No image part found at index 1 in user_content.parts (not enough parts)."
             )
             return None, None
     else:
-        print("No user_content or parts found in tool_context.")
+        logging.warning("No user_content or parts found in tool_context.")
         return None, None
 
 
@@ -82,15 +83,40 @@ def image_editor(prompt: str, tool_context: "ToolContext"):
 
     # Laod the image user upload earlier
     image_part = tool_context.load_artifact(filename="user:user_pos_image.png")
-    image_bytes = image_part.inline_data.data
-    image_loaded = PIL.Image.open(BytesIO(image_bytes))
-    if image_loaded is None:
+
+    if not image_part or not image_part.inline_data or not image_part.inline_data.data:
+        logging.error(
+            "Error: Could not load image artifact 'user:user_pos_image.png' or it"
+            " has no data."
+        )
         return {
             "status": "error",
-            "detail": "No image artifact found to process.",
+            "detail": (
+                "Failed to load image artifact 'user:user_pos_image.png' or artifact"
+                " data is missing."
+            ),
         }
 
-    print("Loaded image:")
+    image_bytes = image_part.inline_data.data
+    try:
+        image_loaded = PIL.Image.open(BytesIO(image_bytes))
+    except Exception as e:
+        logging.error(f"Error opening image from artifact: {e}")
+        return {
+            "status": "error",
+            "detail": f"Error processing image artifact: {e}",
+        }
+
+    if image_loaded is None:
+        # This case might be less likely if PIL.Image.open raises an exception for bad data,
+        # but it's a good fallback.
+        logging.error("Error: Image data from artifact could not be opened by PIL.")
+        return {
+            "status": "error",
+            "detail": "Image data from artifact is invalid or corrupted.",
+        }
+
+    logging.info("Loaded image:")
     # Generate new image
     response = client.models.generate_content(
         model="gemini-2.0-flash-exp",
@@ -98,17 +124,28 @@ def image_editor(prompt: str, tool_context: "ToolContext"):
         config=types.GenerateContentConfig(response_modalities=["TEXT", "IMAGE"]),
     )
 
-    for part in response.candidates[0].content.parts:
-        if part.text is not None:
-            print(part.text)
-        elif part.inline_data is not None:
-            # Save the new image
-            tool_context.save_artifact(
-                "user:pos_in_store_image.png",
-                types.Part.from_bytes(
-                    data=part.inline_data.data, mime_type="image/png"
-                ),
-            )
+    if response.candidates:
+        candidate = response.candidates[0]
+        if candidate.content and candidate.content.parts:
+            for part in candidate.content.parts:
+                if part.text is not None:
+                    logging.info(part.text)
+                elif part.inline_data is not None and part.inline_data.data is not None:
+                    # Save the new image
+                    tool_context.save_artifact(
+                        "user:pos_in_store_image.png",
+                        types.Part.from_bytes(
+                            data=part.inline_data.data, mime_type="image/png"
+                        ),
+                    )
+                elif part.inline_data is not None and part.inline_data.data is None:
+                    logging.warning(
+                        "part.inline_data.data is None, skipping artifact save."
+                    )
+        else:
+            logging.warning("No content or parts found in the candidate.")
+    else:
+        logging.warning("No candidates found in the response.")
     return {
         "status": "success",
         "detail": "Image generated successfully and stored in artifacts.",
@@ -134,7 +171,7 @@ def identify_pos_model(prompt: str, tool_context: "ToolContext"):
         }
 
     # create an image from
-    print("Loaded image")
+    logging.info("Loaded image")
     response = client.models.generate_content(
         model="gemini-2.0-flash-001",
         contents=[
@@ -145,12 +182,13 @@ def identify_pos_model(prompt: str, tool_context: "ToolContext"):
         ],
     )
     # save the image to artifacts so it can be looked up later
-    tool_context.save_artifact(
-        "user:user_pos_image.png",
-        types.Part.from_bytes(
-            data=image_part.inline_data.data, mime_type=image_part.inline_data.mime_type
-        ),
-    )
+    if image_part and image_part.inline_data and image_part.inline_data.data and image_part.inline_data.mime_type:
+        tool_context.save_artifact(
+            "user:user_pos_image.png",
+            types.Part.from_bytes(
+                data=image_part.inline_data.data, mime_type=image_part.inline_data.mime_type
+            ),
+        )
     return response.text
 
 
@@ -159,6 +197,36 @@ def knowledgebase_search_agent(query: str, tool_context: "ToolContext"):
     project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
     location = os.getenv("VERTEX_AI_SEARCH_LOCATION")
     engine_id = os.getenv("VERTEX_AI_SEARCH_ENGINE_ID")
+
+    if not project_id:
+        logging.error("Error: GOOGLE_CLOUD_PROJECT environment variable not set.")
+        return {
+            "answerText": (
+                "Configuration error: The GOOGLE_CLOUD_PROJECT environment variable is"
+                " not set. Please configure it to proceed with knowledgebase search."
+            ),
+            "references": [],
+        }
+    if not location:
+        logging.error("Error: VERTEX_AI_SEARCH_LOCATION environment variable not set.")
+        return {
+            "answerText": (
+                "Configuration error: The VERTEX_AI_SEARCH_LOCATION environment"
+                " variable is not set. Please configure it to proceed with"
+                " knowledgebase search."
+            ),
+            "references": [],
+        }
+    if not engine_id:
+        logging.error("Error: VERTEX_AI_SEARCH_ENGINE_ID environment variable not set.")
+        return {
+            "answerText": (
+                "Configuration error: The VERTEX_AI_SEARCH_ENGINE_ID environment"
+                " variable is not set. Please configure it to proceed with"
+                " knowledgebase search."
+            ),
+            "references": [],
+        }
 
     # vaisearch.vertex_ai_search now returns a dictionary like:
     # {
@@ -226,15 +294,15 @@ def knowledgebase_search_agent(query: str, tool_context: "ToolContext"):
 
                 except Exception as e:
                     # Log the error but continue processing other items
-                    print(
+                    logging.error(
                         f"Error processing/saving search result image artifact from blobAttachment at index {index} for query '{query}': {e}"
                     )
             elif not base64_image_data:
-                print(
+                logging.warning(
                     f"No base64 data found in blobAttachment at index {index} for query '{query}'"
                 )
             elif not mime_type:
-                print(
+                logging.warning(
                     f"No mimeType found in blobAttachment at index {index} for query '{query}'"
                 )
 
@@ -251,7 +319,7 @@ def after_agent_callback(callback_context: ToolContext):
     # Construct the absolute path to the image
     image_path = os.path.join("file://", script_dir, "handheld_terminal_image.png")
 
-    image_artifact = types.Part.from_uri(image_path, mime_type="image/png")
+    image_artifact = types.Part.from_uri(file_uri=image_path, mime_type="image/png")
     callback_context.save_artifact(
         "handheld_terminal_image.png", artifact=image_artifact
     )

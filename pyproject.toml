@@ -24,6 +24,7 @@ google-adk = "=0.3.0"
 google-cloud-discoveryengine = ">=0.13.8"
 google-api-core = ">=2.24.2" # Explicitly added to help resolve import issues
 Pillow = "^10.3.0" # Added for image processing
+google-cloud-documentai = "^2.20.0" # Added for Document AI
 
 [tool.poetry.group.dev]
 optional = true
@@ -44,3 +45,12 @@ flake8-pyproject = "^1.2.3"
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pytest.ini_options]
+log_cli = true
+log_cli_level = "DEBUG"
+# You can also specify log levels for specific modules:
+# log_levels = """
+#     product_onboarding.tools = DEBUG
+#     another_module = INFO
+# """
